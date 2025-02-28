@@ -19738,7 +19738,7 @@
 			(justify left bottom)
 		)
 	)
-	(gr_text "28/01/2025 v1.0"
+	(gr_text "28/01/2025 v1.0.1"
 		(at 120 60.25 0)
 		(layer "F.SilkS")
 		(uuid "f7dfbb76-ae11-41a9-91a3-82b671271cfb")
