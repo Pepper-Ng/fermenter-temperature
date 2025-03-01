@@ -6,11 +6,11 @@
 #include "menu/CFNode.h"
 
 // Constructor initializes menu structure
-MenuManager::MenuManager(TemperatureManager& temperatureManager, Setpoints& setpoints)
+MenuManager::MenuManager(TemperatureManager& temperatureManager, Configurations& configurations)
   : dc(I2C_SDA, I2C_SCL)
   , bm(ButtonManager::getInstance())
   , tm(temperatureManager)
-  , setpoints(setpoints)
+  , cfg(configurations)
 {
   Serial.println("Menu initializing...");
 
@@ -21,16 +21,15 @@ MenuManager::MenuManager(TemperatureManager& temperatureManager, Setpoints& setp
 
   // TODO Future : Setpoints are all in celcius.
   // Setpoints should be updated to be possible in celcius as well as fahrenheit.
-  menuNode->addChild(new ValueSetNode("TS", menuNode, { -50, 120, 0.2, 'C', &setpoints.temperatureSetpoint }, bm, *this));
-  menuNode->addChild(new ValueSetNode("HD", menuNode, { 0.3, 15, 0.1, 'C', &setpoints.heatingDifferential }, bm, *this));
-  menuNode->addChild(new ValueSetNode("CD", menuNode, { 0.3, 15, 0.1, 'C', &setpoints.coolingDifferential }, bm, *this));
-  menuNode->addChild(new ValueSetNode("PT", menuNode, { 0, 10, 0.1, 'm', &setpoints.compressorDelay }, bm, *this));
-  menuNode->addChild(new ValueSetNode("CAL", menuNode, { -15, 15, 0.1, 'C', &setpoints.calibration }, bm, *this));
+  menuNode->addChild(new ValueSetNode("TS", menuNode, { -50, 120, 0.2, 'C', &cfg.temperatureSetpoint }, bm, *this));
+  menuNode->addChild(new ValueSetNode("HD", menuNode, { 0.3, 15, 0.1, 'C', &cfg.heatingDifferential }, bm, *this));
+  menuNode->addChild(new ValueSetNode("CD", menuNode, { 0.3, 15, 0.1, 'C', &cfg.coolingDifferential }, bm, *this));
+  menuNode->addChild(new ValueSetNode("PT", menuNode, { 0, 10, 0.1, 'm', &cfg.compressorDelay }, bm, *this));
+  menuNode->addChild(new ValueSetNode("CAL", menuNode, { -15, 15, 0.1, 'C', &cfg.calibration }, bm, *this));
   menuNode->addChild(new CFNode("CF", menuNode, bm, tm, *this));
 
   currentNode = rootNode;
   currentNode->enter();
-  currentNode->display(dc);
 
   Serial.println("Menu initialized.");
 }
@@ -49,13 +48,13 @@ void MenuManager::transitionTo(MenuNode* node)
 {
   Serial.println("Setpoints:");
   Serial.print("TS: ");
-  Serial.println(setpoints.temperatureSetpoint);
+  Serial.println(cfg.temperatureSetpoint);
   Serial.print("HD: ");
-  Serial.println(setpoints.heatingDifferential);
+  Serial.println(cfg.heatingDifferential);
   Serial.print("CD: ");
-  Serial.println(setpoints.coolingDifferential);
+  Serial.println(cfg.coolingDifferential);
   Serial.print("PT: ");
-  Serial.println(setpoints.compressorDelay);
+  Serial.println(cfg.compressorDelay);
   Serial.println();
   Serial.print("Transition ");
   Serial.print(currentNode->getName().c_str());
@@ -71,7 +70,7 @@ void MenuManager::transitionTo(MenuNode* node)
 
 float MenuManager::getTemperature()
 {
-  // TODO steher: Might implement getting temperature from a different sensor?
+  // TODO: Might implement getting temperature from a different sensor?
   // Might configure that through the menu?
   return tm.getTemperature(0);
 }

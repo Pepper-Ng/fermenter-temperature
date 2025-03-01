@@ -1,7 +1,7 @@
 #ifndef RELAY_CONTROLLER_H
 #define RELAY_CONTROLLER_H
 
-#include "Setpoints.h"
+#include "Configurations.h"
 #include "TemperatureManager.h"
 #include "StatusController.h"
 #include "Pins.h"
@@ -9,13 +9,13 @@
 
 class RelayController {
 public:
-  RelayController(TemperatureManager& tm, StatusController& sc, Setpoints& sp);
+  RelayController(TemperatureManager& tm, StatusController& sc, Configurations& cfg);
   void update(); // Call this regularly in loop()
     
 private:
   TemperatureManager& tempManager;
   StatusController& statusController;
-  Setpoints& setpoints;
+  Configurations& cfg;
 
   unsigned long lastCoolingOffTime = 0; // Track compressor delay
   bool heatingOn = false;

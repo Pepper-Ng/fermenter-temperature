@@ -20,6 +20,8 @@ public:
   State getState();
   void update();
 
+  bool inError();
+
 private:
   State currentState;
   unsigned long lastBlinkTime;

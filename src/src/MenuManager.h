@@ -8,7 +8,7 @@
 
 #include "ButtonManager.h"
 #include "DisplayController.h"
-#include "SetPoints.h"
+#include "Configurations.h"
 #include "TemperatureManager.h"
 
 // Menu
@@ -16,7 +16,7 @@
 
 class MenuManager {
 public:
-  MenuManager(TemperatureManager& temperatureManager, Setpoints& setpoints);
+  MenuManager(TemperatureManager& temperatureManager, Configurations& configurations);
   ~MenuManager();
 
   void update();
@@ -32,10 +32,9 @@ private:
   ButtonManager& bm;
   TemperatureManager& tm;
 
-  Setpoints& setpoints;
+  Configurations& cfg;
 
   MenuNode* currentNode;
-  //std::vector<MenuNode*> nodes;
 };
 
 #endif // MENU_MANAGER_H
