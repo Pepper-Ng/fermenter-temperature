@@ -1,16 +1,21 @@
 #include <Arduino.h>
-#include "ButtonManager.h"
 
-#include "TemperatureManager.h"
+#include "ButtonManager.h"
 #include "MenuManager.h"
+#include "RelayController.h"
+#include "StatusController.h"
+#include "TemperatureManager.h"
 
 #include "Pins.h"
 #include "Setpoints.h"
 
 Setpoints setpoints;
 
-TemperatureManager tm(ONE_WIRE_BUS);
+StatusController sc;
+
+TemperatureManager tm(ONE_WIRE_BUS, sc);
 MenuManager mm(tm, setpoints);
+RelayController rc(tm, sc, setpoints);
 
 unsigned long lastBlinkTime = 0;
 bool ledState = false;
@@ -19,12 +24,17 @@ void setup() {
   pinMode(STATUS_LED, OUTPUT);
   Serial.begin(115200);
 
+  // TODO setup wifi.
+  sc.setState(StatusController::NORMAL_WIFI_NOT_CONFIGURED);
+
   tm.findSensors();
 }
 
 void loop() {
   tm.update();
+  sc.update();
   mm.update();
+  rc.update();
 
   // if (millis() - lastBlinkTime >= 5000)
   // {

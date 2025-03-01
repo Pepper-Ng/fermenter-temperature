@@ -1,8 +1,9 @@
 #include "TemperatureManager.h"
 
-TemperatureManager::TemperatureManager(uint8_t oneWirePin) 
+TemperatureManager::TemperatureManager(uint8_t oneWirePin, StatusController& sc) 
   : oneWire(oneWirePin)
   , sensors(&oneWire)
+  , statusController(sc)
 {}
 
 void TemperatureManager::findSensors()
@@ -20,8 +21,11 @@ void TemperatureManager::findSensors()
 
   sensors.setWaitForConversion(false);
 
-  if (deviceCount == 0) 
+  if (deviceCount == 0)
+  {
     Serial.println("No sensors found!");
+    statusController.setState(StatusController::SENSOR_ERROR);
+  }
 }
 
 void TemperatureManager::update()
@@ -34,7 +38,12 @@ void TemperatureManager::update()
 
 float TemperatureManager::getTemperature(uint8_t index)
 {
-  if (index >= deviceCount) return DEVICE_DISCONNECTED_C;
+  if (index >= deviceCount)
+  {
+    statusController.setState(StatusController::SENSOR_ERROR);
+    return DEVICE_DISCONNECTED_C;
+  }
+
   if (temperatureUnit == 'F')
     return sensors.getTempF(deviceAddresses[index]);
   else
