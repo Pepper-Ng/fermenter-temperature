@@ -63,6 +63,11 @@ void MenuManager::transitionTo(MenuNode* node)
 
   if (!node || node == currentNode) return;
   if (currentNode) currentNode->exit();
+
+  // If we enter the menu again, (e.g. back from setting a value), save configurations to FS.
+  if (node->getName() == "MENU")
+    cfg.save();
+
   currentNode = node;
   currentNode->enter();
   currentNode->display(dc);

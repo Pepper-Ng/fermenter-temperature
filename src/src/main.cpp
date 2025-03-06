@@ -9,6 +9,8 @@
 #include "Pins.h"
 #include "Configurations.h"
 
+#include <WiFiManager.h>
+
 Configurations configurations;
 
 StatusController sc;
@@ -19,13 +21,34 @@ RelayController rc(tm, sc, configurations);
 
 unsigned long lastBlinkTime = 0;
 bool ledState = false;
+bool wifiState = false;
+
+WiFiManager wm;
 
 void setup() {
   pinMode(STATUS_LED, OUTPUT);
   Serial.begin(115200);
 
-  // TODO setup wifi.
-  sc.setState(StatusController::NORMAL_WIFI_NOT_CONFIGURED);
+  Serial.println("Starting WiFiManager...");
+  wm.setConfigPortalBlocking(false);
+  wm.setConfigPortalTimeout(120);
+  if(wm.autoConnect("TempController-Setup"))
+  {
+    Serial.println("Wifi connected.");
+    sc.setState(StatusController::NORMAL_WIFI_CONNECTED);
+    wifiState = true;
+  }
+  else
+  {
+    Serial.println("Configportal running.");
+    sc.setState(StatusController::NORMAL_WIFI_NOT_CONFIGURED);
+  }
+
+  if (!configurations.begin())
+    Serial.println("Failed to load config, using defaults.");
+  else
+    Serial.println("Config loaded.");
+
   delay(50);
 
   tm.findSensors();
@@ -38,6 +61,14 @@ void loop() {
   sc.update();
   mm.update();
   rc.update();
+
+  wm.process();
+
+  if (WiFi.status() == WL_CONNECTED && !wifiState) {
+    wifiState = true;
+    sc.setState(StatusController::NORMAL_WIFI_CONNECTED);
+    Serial.println("WiFi connected!");
+  }
 
   delay(5);
 }
